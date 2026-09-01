@@ -3,7 +3,7 @@
 Live market data, the trading console, and order entry through IBKR Gateway or TWS.
 
 ```bash
-gloomberb install ibkr-gateway
+gloomberb install gloom-sh/gloomberb-ibkr-gateway
 ```
 
 Requires [`gloomberb-ibkr`](https://github.com/gloom-sh/gloomberb-ibkr), which owns the Interactive Brokers profile. Install both, then set a profile's connection mode to Gateway.
