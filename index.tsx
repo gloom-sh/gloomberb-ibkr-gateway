@@ -49,9 +49,13 @@ export const ibkrGatewayPlugin: GloomPlugin = {
   homepage: "https://github.com/gloom-sh/gloomberb-ibkr-gateway",
   toggleable: true,
 
-  // Gateway speaks the TWS API over a raw TCP socket to a local process, which
-  // a browser cannot open. This is why it is a separate plugin from Flex.
-  targets: ["cli", "tui", "desktop"],
+  // Gateway speaks the TWS API over a raw TCP socket, so it needs a Bun host.
+  //
+  // Desktop is excluded for a second reason: the socket has to live in the
+  // Electrobun Bun process while panes render in the view, and external plugins
+  // are currently only loaded into the view. Until a plugin can register a
+  // Bun-side component, this runs in the terminal only.
+  targets: ["cli", "tui"],
   paneTemplates: [
     {
       id: "new-ibkr-trading-pane",
