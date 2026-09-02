@@ -1,0 +1,15 @@
+{
+  "id": "ibkr-gateway",
+  "tagline": "Live IBKR data, trading console, and order entry",
+  "description": "Live market data, the trading console, and order entry through IBKR Gateway or TWS. Requires the Interactive Brokers plugin, which owns the broker profile. Speaks the TWS API over a local TCP socket, so it runs in the terminal only.",
+  "categories": [
+    "broker",
+    "trading"
+  ],
+  "targets": [
+    "cli",
+    "tui"
+  ],
+  "hosts": [],
+  "minGloomberb": "0.12.0"
+}
