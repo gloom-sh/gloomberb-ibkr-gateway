@@ -1,7 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="IBKR Gateway">
-  <rect width="64" height="64" fill="#8C1017"/>
-  <path d="M24 16 H16 V48 H24" fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="square"/>
-  <path d="M40 16 H48 V48 H40" fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="square"/>
-  <path d="M24 32 H40" fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="square"/>
-  <path d="M34 25 L41 32 L34 39" fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="square" stroke-linejoin="miter"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Interactive Brokers">
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#262626"/>
+      <stop offset="1" stop-color="#0F0F0F"/>
+    </linearGradient>
+    <!-- Taken from the mark in interactivebrokers.com/images/web/logos/ibkr-logo.svg -->
+    <linearGradient id="mark" gradientUnits="userSpaceOnUse" x1="3633.335" y1="66.0445" x2="3671.0737" y2="66.0445" gradientTransform="matrix(-1 0 0 1 3673.7529 0)">
+      <stop offset="0" stop-color="#D71F27"/>
+      <stop offset="1" stop-color="#971B1E"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" fill="url(#tile)"/>
+  <g transform="translate(20.4 8.2) scale(0.539)">
+    <polygon points="40.4,86.8 2.7,86.8 2.7,45.3" fill="url(#mark)"/>
+    <polygon points="40.4,1.5 2.7,45.3 2.7,86.8" fill="#D71F27"/>
+    <circle cx="35.2" cy="55.5" r="11.3" fill="#D71F27"/>
+  </g>
 </svg>
