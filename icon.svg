@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="IBKR Gateway">
+  <rect width="64" height="64" fill="#8C1017"/>
+  <path d="M24 16 H16 V48 H24" fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="square"/>
+  <path d="M40 16 H48 V48 H40" fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="square"/>
+  <path d="M24 32 H40" fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="square"/>
+  <path d="M34 25 L41 32 L34 39" fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="square" stroke-linejoin="miter"/>
+</svg>
