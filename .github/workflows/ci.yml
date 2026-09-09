@@ -8,6 +8,10 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    env:
+      # Shared UI/pane API from gloom-sh/gloomberb#743; update after the host release.
+      GLOOMBERB_REVISION: ffa36b68e9ae495cd7363c7081bd4fe0e4cb76b7
+      IBKR_REVISION: 4fab99507dbaaabf6d85b5e0ce471154e7b1353c
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
@@ -21,11 +25,25 @@ jobs:
       # CI typechecks against the same module graph that runs in production.
       - name: Link the Gloomberb host
         run: |
-          git clone --depth 1 https://github.com/gloom-sh/gloomberb.git "$RUNNER_TEMP/gloomberb"
+          git init "$RUNNER_TEMP/gloomberb"
+          git -C "$RUNNER_TEMP/gloomberb" remote add origin https://github.com/gloom-sh/gloomberb.git
+          git -C "$RUNNER_TEMP/gloomberb" fetch --depth 1 origin "$GLOOMBERB_REVISION"
+          git -C "$RUNNER_TEMP/gloomberb" checkout --detach FETCH_HEAD
           bun install --cwd "$RUNNER_TEMP/gloomberb"
           mkdir -p node_modules
           ln -sfn "$RUNNER_TEMP/gloomberb" node_modules/gloomberb
           ln -sfn "$RUNNER_TEMP/gloomberb/node_modules/react" node_modules/react
+
+      - name: Link the matching IBKR plugin
+        run: |
+          git init "$RUNNER_TEMP/gloomberb-ibkr"
+          git -C "$RUNNER_TEMP/gloomberb-ibkr" remote add origin https://github.com/gloom-sh/gloomberb-ibkr.git
+          git -C "$RUNNER_TEMP/gloomberb-ibkr" fetch --depth 1 origin "$IBKR_REVISION"
+          git -C "$RUNNER_TEMP/gloomberb-ibkr" checkout --detach FETCH_HEAD
+          bun install --cwd "$RUNNER_TEMP/gloomberb-ibkr"
+          ln -sfn "$RUNNER_TEMP/gloomberb" "$RUNNER_TEMP/gloomberb-ibkr/node_modules/gloomberb"
+          ln -sfn "$RUNNER_TEMP/gloomberb/node_modules/react" "$RUNNER_TEMP/gloomberb-ibkr/node_modules/react"
+          ln -sfn "$RUNNER_TEMP/gloomberb-ibkr" node_modules/gloomberb-ibkr
 
       - run: bun run typecheck
       - run: bun test

@@ -9,7 +9,6 @@ import {
   formatPreviewSummary,
   formatQuoteSummary,
   getKnownIbkrAccounts,
-  getTradeTonePalette,
   hasIbkrTradingProfiles,
   inferDraftAccountId,
   isLimitOrder,
@@ -143,7 +142,6 @@ describe("trade-utils", () => {
     expect(isLimitOrder("STP")).toBe(false);
     expect(isStopOrder("STP LMT")).toBe(true);
     expect(isMarketDataWarning("Delayed market data is not subscribed")).toBe(true);
-    expect(getTradeTonePalette("positive").text).toBeDefined();
   });
 
   test("resolves order tickers by direct symbol or broker contract metadata", () => {

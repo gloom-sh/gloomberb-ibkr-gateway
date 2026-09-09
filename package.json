@@ -18,7 +18,7 @@
     "rxjs": "^7.8.1"
   },
   "peerDependencies": {
-    "gloomberb": ">=0.12.0",
+    "gloomberb": ">=0.14.0",
     "gloomberb-ibkr": ">=1.0.0",
     "react": ">=19"
   },
