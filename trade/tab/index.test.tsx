@@ -13,6 +13,7 @@ import { ibkrGatewayManager } from "../../gateway/service";
 import { TradeTab } from "./index";
 import {
   clearTradingDraft,
+  getTradeTicketState,
   prefillTradeFromTicker,
 } from "../../trading/state";
 
@@ -136,7 +137,7 @@ afterEach(async () => {
   await ibkrGatewayManager.removeInstance(TEST_INSTANCE_ID);
 });
 
-test("prefills the only cached IBKR account when the live gateway snapshot is empty", async () => {
+test("prefills the cached account and edits its ticket through shared controls without a live gateway", async () => {
   const config = createTradeConfig("AMD");
   const ticker = makeTicker("AMD", "Advanced Micro Devices, Inc.");
   const financials = makeFinancials();
@@ -175,4 +176,20 @@ test("prefills the only cached IBKR account when the live gateway snapshot is em
   const frame = testSetup!.captureCharFrame();
   expect(frame).toContain("Account DU123456");
   expect(frame).toContain("Paper Gateway");
+
+  const row = frame.split("\n").findIndex((line) => line.includes("Qty 1"));
+  const col = frame.split("\n")[row]!.indexOf("Qty 1");
+  await act(async () => { await testSetup!.mockMouse.click(col + 1, row); });
+  await act(async () => { await testSetup!.renderOnce(); });
+
+  // The kit button must enter capture mode and open the shared TextField dialog.
+  // Submission uses the current input, including the final keystroke in this batch.
+  await act(async () => {
+    await testSetup!.mockInput.typeText(" 25 ");
+    testSetup!.mockInput.pressEnter();
+  });
+  await act(async () => { await testSetup!.renderOnce(); });
+  expect(getTradeTicketState("AMD", ticker).draft.quantity).toBe(25);
+  expect(getTradeTicketState("AMD", ticker).draft.accountId).toBe("DU123456");
+  expect(testSetup!.captureCharFrame()).toContain("Qty 25");
 });

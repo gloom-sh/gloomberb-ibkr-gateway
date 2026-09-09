@@ -1,6 +1,5 @@
-import type { Dispatch, SetStateAction } from "react";
-import { Box, Text } from "gloomberb/ui";
-import { TextAttributes } from "gloomberb/ui";
+import { Badge, Button, Notice, SectionHeading, type ButtonVariant } from "gloomberb/components";
+import { Box } from "gloomberb/ui";
 import { colors } from "gloomberb/theme";
 import type { BrokerContractRef } from "gloomberb/types/instrument";
 import type { TickerRecord } from "gloomberb/types/ticker";
@@ -8,84 +7,28 @@ import { formatMarketPrice, formatMarketQuantity } from "gloomberb/market-data";
 import type { TradeTicketState } from "../trading/state";
 import { truncateTradeText as truncateText } from "./utils";
 
-function TradeFieldPill({
-  id,
-  label,
-  value,
-  fieldWidth,
-  fieldHoverBg,
-  hoveredField,
-  setHoveredField,
-  valueColor,
-  valueAttributes = 0,
-  disabled = false,
-  active = false,
-  widthOverride,
-  onEnterInteractive,
-  onPress,
-}: {
-  id: string;
+/** Formats a ticket field and enters capture mode before opening its domain editor. */
+function TicketField({ label, value, fieldWidth, widthOverride, active, disabled, variant, onEnterInteractive, onPress }: {
   label: string;
   value: string;
   fieldWidth: number;
-  fieldHoverBg: string;
-  hoveredField: string | null;
-  setHoveredField: Dispatch<SetStateAction<string | null>>;
-  valueColor?: string;
-  valueAttributes?: number;
-  disabled?: boolean;
-  active?: boolean;
   widthOverride?: number;
+  active?: boolean;
+  disabled?: boolean;
+  variant?: ButtonVariant;
   onEnterInteractive: () => void;
   onPress?: () => void;
 }) {
-  const itemWidth = widthOverride ?? fieldWidth;
-  const valueWidth = Math.max(4, itemWidth - label.length - 3);
-  const hovered = hoveredField === id;
-  const backgroundColor = disabled
-    ? colors.panel
-    : active
-      ? colors.selected
-      : hovered
-        ? fieldHoverBg
-        : colors.panel;
-  const labelColor = disabled
-    ? colors.textMuted
-    : active
-      ? colors.selectedText
-      : hovered
-        ? colors.textBright
-        : colors.textDim;
-  const resolvedValueColor = active
-    ? colors.selectedText
-    : hovered
-      ? colors.textBright
-      : valueColor ?? (disabled ? colors.textMuted : colors.text);
-
-  return (
-    <Box
-      key={id}
-      width={itemWidth}
-      minWidth={16}
-      height={1}
-      flexDirection="row"
-      backgroundColor={backgroundColor}
-      paddingX={1}
-      marginRight={1}
-      onMouseOver={() => {
-        if (!disabled) setHoveredField((current) => (current === id ? current : id));
-      }}
-      onMouseDown={disabled ? undefined : () => {
-        onEnterInteractive();
-        onPress?.();
-      }}
-    >
-      <Text fg={labelColor}>{label}</Text>
-      <Text fg={resolvedValueColor} attributes={valueAttributes}>
-        {` ${truncateText(value, valueWidth)}`}
-      </Text>
-    </Box>
-  );
+  const width = widthOverride ?? fieldWidth;
+  const display = truncateText(`${label} ${value}`, Math.max(6, width - 2));
+  return <Box width={width} marginRight={1}>
+    {onPress ? <Button
+      label={`${label} ${value}`} displayLabel={display} width={width}
+      active={active} disabled={disabled} variant={variant}
+      stopPropagation
+      onPress={() => { onEnterInteractive(); onPress(); }}
+    /> : <Badge label={display} />}
+  </Box>;
 }
 
 export function TradeTicketPanel({
@@ -96,9 +39,6 @@ export function TradeTicketPanel({
   orderFieldWidth,
   fieldWidth,
   fieldTextWidth,
-  fieldHoverBg,
-  hoveredField,
-  setHoveredField,
   ticketHint,
   profileLabel,
   hasProfile,
@@ -129,9 +69,6 @@ export function TradeTicketPanel({
   orderFieldWidth: number;
   fieldWidth: number;
   fieldTextWidth: number;
-  fieldHoverBg: string;
-  hoveredField: string | null;
-  setHoveredField: Dispatch<SetStateAction<string | null>>;
   ticketHint: string;
   profileLabel?: string;
   hasProfile: boolean;
@@ -157,9 +94,6 @@ export function TradeTicketPanel({
 }) {
   const fieldProps = {
     fieldWidth,
-    fieldHoverBg,
-    hoveredField,
-    setHoveredField,
     onEnterInteractive,
   };
 
@@ -174,37 +108,32 @@ export function TradeTicketPanel({
       paddingX={1}
     >
       <Box height={1} flexDirection="row">
-        <Text fg={colors.textBright} attributes={TextAttributes.BOLD}>Ticket</Text>
+        <SectionHeading title="Ticket" />
         <Box flexGrow={1} />
-        <Text fg={interactive ? colors.positive : colors.textMuted}>
-          {interactive ? "Captured" : "Ready"}
-        </Text>
+        <Badge label={interactive ? "Captured" : "Ready"} tone={interactive ? "positive" : "neutral"} />
       </Box>
-      <Text fg={colors.textMuted}>{truncateText(ticketHint, Math.max(ticketPanelWidth - 4, 24))}</Text>
+      <Notice tone="muted">{truncateText(ticketHint, Math.max(ticketPanelWidth - 4, 24))}</Notice>
       <Box height={1} />
 
       <Box flexDirection="row" flexWrap="wrap">
-        <TradeFieldPill
+        <TicketField
           {...fieldProps}
-          id="profile"
           label="Profile"
           value={profileLabel ?? "Choose profile"}
           active={hasProfile}
           widthOverride={coreFieldWidth}
           onPress={onChooseBrokerInstance}
         />
-        <TradeFieldPill
+        <TicketField
           {...fieldProps}
-          id="contract"
           label="Ticker"
           value={contractValue}
           active={hasContract}
           widthOverride={coreFieldWidth}
           onPress={onChooseInstrument}
         />
-        <TradeFieldPill
+        <TicketField
           {...fieldProps}
-          id="account"
           label="Account"
           value={currentAccountId || "Select account"}
           active={hasAccount}
@@ -214,27 +143,23 @@ export function TradeTicketPanel({
       </Box>
       <Box height={1} />
       <Box flexDirection="row" flexWrap="wrap">
-        <TradeFieldPill
+        <TicketField
           {...fieldProps}
-          id="action"
           label="Side"
           value={ticketState.draft.action}
-          valueColor={ticketState.draft.action === "BUY" ? colors.positive : colors.negative}
-          valueAttributes={TextAttributes.BOLD}
+          variant={ticketState.draft.action === "BUY" ? "primary" : "danger"}
           widthOverride={orderFieldWidth}
           onPress={onToggleSide}
         />
-        <TradeFieldPill
+        <TicketField
           {...fieldProps}
-          id="orderType"
           label="Type"
           value={ticketState.draft.orderType}
           widthOverride={orderFieldWidth}
           onPress={onEditOrderType}
         />
-        <TradeFieldPill
+        <TicketField
           {...fieldProps}
-          id="quantity"
           label="Qty"
           value={formatMarketQuantity(ticketState.draft.quantity, {
             assetCategory: ticker.metadata.assetCategory,
@@ -245,9 +170,8 @@ export function TradeTicketPanel({
           onPress={onEditQuantity}
         />
         {showLimit && (
-          <TradeFieldPill
+          <TicketField
             {...fieldProps}
-            id="limitPrice"
             label="Limit"
             value={ticketState.draft.limitPrice != null
               ? formatMarketPrice(ticketState.draft.limitPrice, {
@@ -261,9 +185,8 @@ export function TradeTicketPanel({
           />
         )}
         {showStop && (
-          <TradeFieldPill
+          <TicketField
             {...fieldProps}
-            id="stopPrice"
             label="Stop"
             value={ticketState.draft.stopPrice != null
               ? formatMarketPrice(ticketState.draft.stopPrice, {
@@ -276,26 +199,23 @@ export function TradeTicketPanel({
             onPress={onEditStopPrice}
           />
         )}
-        <TradeFieldPill
+        <TicketField
           {...fieldProps}
-          id="tif"
           label="TIF"
           value={ticketState.draft.tif || "DAY"}
           widthOverride={orderFieldWidth}
         />
         {ticketState.editingOrderId && (
-          <TradeFieldPill
+          <TicketField
             {...fieldProps}
-            id="editing"
             label="Mode"
             value={`Edit #${ticketState.editingOrderId}`}
-            valueColor={colors.textBright}
             widthOverride={orderFieldWidth}
           />
         )}
       </Box>
       <Box height={1} />
-      <Text fg={colors.textMuted}>{contractMeta}</Text>
+      <Notice tone="muted">{contractMeta}</Notice>
     </Box>
   );
 }

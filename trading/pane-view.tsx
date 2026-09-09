@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import { Box, Text, TextAttributes } from "gloomberb/ui";
-import { DataTableView, type DataTableCell, type DataTableColumn } from "gloomberb/components";
+import { Box, TextAttributes } from "gloomberb/ui";
+import { DataTableView, Divider, Notice, SectionHeading, Spinner, type DataTableCell, type DataTableColumn } from "gloomberb/components";
 import { colors, priceColor } from "gloomberb/theme";
 import type { BrokerInstanceConfig } from "gloomberb/types/config";
 import type { Quote } from "gloomberb/types/financials";
@@ -140,23 +140,23 @@ export function TradingPaneView({
     <Box flexDirection="column" flexGrow={1} paddingX={1}>
       <Box flexDirection="row" height={1}>
         <Box flexGrow={1} overflow="hidden">
-          <Text fg={
+          <Notice tone={
             displayStatusState === "connected"
-              ? colors.positive
+              ? "positive"
               : displayStatusState === "error"
-                ? colors.negative
-                : colors.textDim
+                ? "negative"
+                : "muted"
           }>
             {selectedInstance
               ? `${selectedInstance.label} · ${isGatewayMode ? "Gateway" : "Flex"} · ${displayStatusState}`
               : "IBKR · no profile selected"}
-          </Text>
+          </Notice>
         </Box>
-        {tradeState.busy && <Text fg={colors.textDim}>Working...</Text>}
+        {tradeState.busy && <Spinner label="Working..." />}
       </Box>
 
       <Box height={1} overflow="hidden">
-        <Text fg={colors.textDim}>
+        <Notice tone="muted">
           {activeAccount
             ? `${selectedInstance?.label || "IBKR"} → ${activeAccount.accountId} · ${formatCurrency(activeAccount.netLiquidation || 0, activeAccount.currency || "USD")} net liq`
             : isGatewayMode
@@ -166,26 +166,24 @@ export function TradingPaneView({
               : gatewayInstancesCount > 0
                 ? "Choose a Gateway / TWS profile"
                 : "Connect an IBKR profile"}
-        </Text>
+        </Notice>
       </Box>
 
       <Box height={1} overflow="hidden">
-        <Text fg={tradeState.lastError ? colors.negative : colors.textDim}>
+        <Notice tone={tradeState.lastError ? "negative" : "muted"}>
           {tradeState.lastError
             || gatewaySnapshot.status.message
             || gatewaySnapshot.lastError
             || tradeState.lastInfo
             || "Use this console for profile status, accounts, open orders, and executions."}
-        </Text>
+        </Notice>
       </Box>
 
-      <Box height={1} width={Math.max(1, width - 2)} backgroundColor={colors.border} />
+      <Divider width={Math.max(1, width - 2)} />
 
       <Box flexDirection={stacked ? "column" : "row"} height={bodyHeight}>
         <Box width={orderPanelWidth} height={orderPanelHeight} flexDirection="column">
-          <Box height={1}>
-            <Text attributes={TextAttributes.BOLD} fg={colors.textBright}>Open Orders</Text>
-          </Box>
+          <SectionHeading title="Open Orders" />
           <DataTableView<OpenOrder>
             focused={focused}
             columns={OPEN_ORDER_COLUMNS}
@@ -205,12 +203,10 @@ export function TradingPaneView({
           />
         </Box>
 
-        {!stacked && <Box width={1} height={bodyHeight} backgroundColor={colors.border} />}
+        {!stacked && <Divider orientation="vertical" height={bodyHeight} />}
 
         <Box width={listPanelWidth} height={executionPanelHeight} flexDirection="column">
-          <Box height={1}>
-            <Text attributes={TextAttributes.BOLD} fg={colors.textBright}>Executions</Text>
-          </Box>
+          <SectionHeading title="Executions" />
           <DataTableView<Execution>
             columns={EXECUTION_COLUMNS}
             items={executions}

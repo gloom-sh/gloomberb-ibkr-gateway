@@ -1,49 +1,14 @@
-import { Button } from "gloomberb/components";
-import { Box, Text } from "gloomberb/ui";
-import { TextAttributes } from "gloomberb/ui";
-import { colors } from "gloomberb/theme";
+import { Badge, Button, Notice, SectionHeading } from "gloomberb/components";
+import { Box } from "gloomberb/ui";
 import type { TickerFinancials } from "gloomberb/types/financials";
 import type { TickerRecord } from "gloomberb/types/ticker";
 import type { BrokerAccount } from "gloomberb/types/trading";
 import { formatCurrency } from "gloomberb/utils";
-import { TradeBadge } from "../badge";
 import {
   formatQuoteSummary,
-  getTradeTonePalette,
   truncateTradeText as truncateText,
   type TradeTone,
 } from "../utils";
-
-function TradeSummaryPill({
-  id,
-  label,
-  value,
-  tone = "neutral",
-  onPress,
-}: {
-  id: string;
-  label: string;
-  value: string;
-  tone?: TradeTone;
-  onPress?: () => void;
-}) {
-  const palette = getTradeTonePalette(tone);
-
-  return (
-    <Box
-      key={id}
-      height={1}
-      flexDirection="row"
-      backgroundColor={palette.background}
-      paddingX={1}
-      marginRight={1}
-      onMouseDown={onPress}
-    >
-      <Text fg={tone === "neutral" ? colors.textDim : palette.text}>{label}</Text>
-      <Text fg={palette.text} attributes={TextAttributes.BOLD}>{` ${value}`}</Text>
-    </Box>
-  );
-}
 
 export function TradeTabHeader({
   ticker,
@@ -58,7 +23,6 @@ export function TradeTabHeader({
   interactive,
   nextStep,
   workflowTone,
-  statusTone,
   statusText,
   busy,
   hasError,
@@ -81,7 +45,6 @@ export function TradeTabHeader({
   interactive: boolean;
   nextStep: string;
   workflowTone: TradeTone;
-  statusTone: TradeTone;
   statusText: string;
   busy: boolean;
   hasError: boolean;
@@ -96,57 +59,37 @@ export function TradeTabHeader({
     <>
       <Box flexDirection="row" flexWrap="wrap" justifyContent="space-between">
         <Box flexDirection="column" marginBottom={1}>
-          <Box height={1} flexDirection="row">
-            <Text attributes={TextAttributes.BOLD} fg={colors.textBright}>{`Trade ${ticker.metadata.ticker}`}</Text>
-            {ticker.metadata.name && ticker.metadata.name !== ticker.metadata.ticker && (
-              <Text fg={colors.textDim}>{` · ${ticker.metadata.name}`}</Text>
-            )}
-          </Box>
-          <Box height={1}>
-            <Text fg={colors.textMuted}>
-              {formatQuoteSummary(financials?.quote, { assetCategory: ticker.metadata.assetCategory })}
-            </Text>
-          </Box>
+          <SectionHeading title={[
+            `Trade ${ticker.metadata.ticker}`,
+            ticker.metadata.name !== ticker.metadata.ticker ? ticker.metadata.name : null,
+          ].filter(Boolean).join(" · ")} />
+          <Notice tone="muted">{formatQuoteSummary(financials?.quote, { assetCategory: ticker.metadata.assetCategory })}</Notice>
         </Box>
 
-        <Box flexDirection="row" flexWrap="wrap" justifyContent="flex-end">
-          <TradeBadge
-            label="Broker"
-            value={profileLabel ? `${profileLabel} ${isGatewayMode ? "Gateway" : "Flex"}` : "Select profile"}
-            tone={connectionTone}
-            onPress={() => {
-              onEnterInteractive();
-              onChooseBrokerInstance();
-            }}
+        <Box flexDirection="row" flexWrap="wrap" justifyContent="flex-end" gap={1}>
+          <Button
+            label={`Broker ${profileLabel ? `${profileLabel} ${isGatewayMode ? "Gateway" : "Flex"}` : "Select profile"}`}
+            active={connectionTone === "positive" || connectionTone === "accent"}
+            stopPropagation
+            onPress={() => { onEnterInteractive(); onChooseBrokerInstance(); }}
           />
-          <TradeBadge
-            label="Account"
-            value={currentAccountId || (lockedBrokerInstanceId ? "Locked" : "Select")}
-            tone={hasAccount ? "accent" : "neutral"}
-            onPress={() => {
-              onEnterInteractive();
-              onChooseAccount();
-            }}
+          <Button
+            label={`Account ${currentAccountId || (lockedBrokerInstanceId ? "Locked" : "Select")}`}
+            active={hasAccount}
+            stopPropagation
+            onPress={() => { onEnterInteractive(); onChooseAccount(); }}
           />
-          <TradeBadge
-            label="Net Liq"
-            value={activeAccount ? formatCurrency(activeAccount.netLiquidation || 0, activeAccount.currency || "USD") : "—"}
-            tone="neutral"
-            onPress={activeAccount ? undefined : () => {
-              onEnterInteractive();
-              onChooseAccount();
-            }}
-          />
+          {activeAccount ? <Badge label={`Net Liq ${formatCurrency(activeAccount.netLiquidation || 0, activeAccount.currency || "USD")}`} />
+            : <Button label="Net Liq —" stopPropagation onPress={() => { onEnterInteractive(); onChooseAccount(); }} />}
+
         </Box>
       </Box>
 
-      <Box flexDirection="row" flexWrap="wrap">
-        <TradeSummaryPill id="next" label="Next" value={nextStep} tone={workflowTone} />
-        <TradeSummaryPill
-          id="ticket"
-          label="Ticket"
-          value={interactive ? "Captured" : "Standby"}
-          tone={interactive ? "accent" : "neutral"}
+      <Box flexDirection="row" flexWrap="wrap" gap={1}>
+        <Badge label={`Next ${nextStep}`} tone={workflowTone} />
+        <Button
+          label={`Ticket ${interactive ? "Captured" : "Standby"}`}
+          active={interactive}
           onPress={() => (interactive ? onExitInteractive() : onEnterInteractive())}
         />
         <Button
@@ -157,11 +100,9 @@ export function TradeTabHeader({
         />
       </Box>
 
-      <Box backgroundColor={getTradeTonePalette(statusTone).background} paddingX={1}>
-        <Text fg={hasError ? colors.negative : isSuccess ? colors.positive : colors.text}>
-          {truncateText(statusText, 160)}
-        </Text>
-      </Box>
+      <Notice tone={hasError ? "negative" : isSuccess ? "positive" : "muted"}>
+        {truncateText(statusText, 160)}
+      </Notice>
     </>
   );
 }

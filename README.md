@@ -2,6 +2,8 @@
 
 Live market data, the trading console, and order entry through IBKR Gateway or TWS.
 
+This branch uses the shared pane UI in [Gloomberb #743](https://github.com/gloom-sh/gloomberb/pull/743), targeting Gloomberb 0.14.0. That release is pending; released 0.13.3 is not supported.
+
 ```bash
 gloomberb install gloom-sh/gloomberb-ibkr-gateway
 ```

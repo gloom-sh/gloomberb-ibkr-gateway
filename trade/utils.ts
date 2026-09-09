@@ -3,7 +3,6 @@ import type { Quote } from "gloomberb/types/financials";
 import type { BrokerContractRef } from "gloomberb/types/instrument";
 import type { TickerRecord } from "gloomberb/types/ticker";
 import type { BrokerAccount, BrokerOrderPreview, BrokerOrderType } from "gloomberb/types/trading";
-import { colors } from "gloomberb/theme";
 import { formatCompact, formatCurrency } from "gloomberb/utils";
 export { truncateWithEllipsis as truncateTradeText } from "gloomberb/utils";
 import { formatMarketPrice, formatMarketPriceWithCurrency, formatSignedMarketPrice, type AssetDisplayContext } from "gloomberb/market-data";
@@ -88,20 +87,6 @@ export function formatPreviewSummary(preview: BrokerOrderPreview | null): string
     return "Preview required before submit. Press p to review margin and commission.";
   }
   return `What-if: init ${formatCompact(preview.initMarginBefore || 0)} → ${formatCompact(preview.initMarginAfter || 0)} · commission ${preview.commission != null ? formatCurrency(preview.commission, preview.commissionCurrency || "USD") : "—"}`;
-}
-
-export function getTradeTonePalette(tone: TradeTone) {
-  switch (tone) {
-    case "accent":
-      return { border: colors.borderFocused, text: colors.textBright, background: colors.selected };
-    case "positive":
-      return { border: colors.positive, text: colors.positive, background: colors.panel };
-    case "negative":
-      return { border: colors.negative, text: colors.negative, background: colors.panel };
-    case "neutral":
-    default:
-      return { border: colors.border, text: colors.text, background: colors.panel };
-  }
 }
 
 export function formatPreviewMetric(before?: number, after?: number): string {

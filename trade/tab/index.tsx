@@ -1,4 +1,4 @@
-import { Box, ScrollBox, Text } from "gloomberb/ui";
+import { Box, ScrollBox } from "gloomberb/ui";
 import { useDialog } from "gloomberb/dialog";
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -7,7 +7,7 @@ import {
   usePaneInstanceId,
   usePaneTicker,
 } from "gloomberb/react";
-import { colors, hoverBg } from "gloomberb/theme";
+import { EmptyState } from "gloomberb/components";
 import type { TickerResearchTabProps } from "gloomberb/types/plugin";
 import { isGatewayConfigured } from "gloomberb-ibkr/config";
 import { useIbkrGatewaySelection } from "../../gateway/selection";
@@ -41,8 +41,6 @@ export function TradeTab({ focused, width, onCapture }: TickerResearchTabProps) 
   const dialog = useDialog();
   const tradeState = useTradingPaneState();
   const [interactive, setInteractive] = useState(false);
-  const [hoveredField, setHoveredField] = useState<string | null>(null);
-  const fieldHoverBg = hoverBg();
 
   const symbol = ticker?.metadata.ticker ?? null;
   const ticketState = getTradeTicketState(symbol, ticker);
@@ -180,7 +178,7 @@ export function TradeTab({ focused, width, onCapture }: TickerResearchTabProps) 
   const hasAccount = Boolean(currentAccountId);
   const hasPreview = Boolean(ticketState.preview);
   const connectionTone = resolveTradeConnectionTone(gatewaySnapshot);
-  const { statusTone, statusText } = resolveTradeStatus({ ticketState, gatewaySnapshot });
+  const { statusText } = resolveTradeStatus({ ticketState, gatewaySnapshot });
   const { previewTone, previewHeading } = resolveTradePreviewDisplay(ticketState);
   const { nextStep, workflowTone } = resolveTradeNextStep({
     hasProfile,
@@ -206,7 +204,7 @@ export function TradeTab({ focused, width, onCapture }: TickerResearchTabProps) 
   if (!ticker || !symbol) {
     return (
       <Box flexGrow={1} alignItems="center" justifyContent="center">
-        <Text fg={colors.textDim}>Select a ticker to draft an IBKR trade.</Text>
+        <EmptyState title="Select a ticker to draft an IBKR trade." />
       </Box>
     );
   }
@@ -233,7 +231,6 @@ export function TradeTab({ focused, width, onCapture }: TickerResearchTabProps) 
           interactive={interactive}
           nextStep={nextStep}
           workflowTone={workflowTone}
-          statusTone={statusTone}
           statusText={statusText}
           busy={ticketState.busy}
           hasError={Boolean(ticketState.lastError)}
@@ -254,9 +251,6 @@ export function TradeTab({ focused, width, onCapture }: TickerResearchTabProps) 
             orderFieldWidth={orderFieldWidth}
             fieldWidth={fieldWidth}
             fieldTextWidth={fieldTextWidth}
-            fieldHoverBg={fieldHoverBg}
-            hoveredField={hoveredField}
-            setHoveredField={setHoveredField}
             ticketHint={ticketHint}
             profileLabel={selectedInstance?.label}
             hasProfile={hasProfile}
