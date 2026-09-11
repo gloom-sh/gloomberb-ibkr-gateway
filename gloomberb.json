@@ -13,5 +13,10 @@
     "tui"
   ],
   "hosts": [],
+  "contributes": {
+    "panes": [
+      "ibkr-trading"
+    ]
+  },
   "minGloomberb": "0.14.0"
 }
